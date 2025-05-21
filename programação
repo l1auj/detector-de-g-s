@@ -1,0 +1,52 @@
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+
+// DEFINIÇÕES
+#define endereco  0x27
+#define colunas   16
+#define linhas    2
+
+// INSTANCIANDO OBJETOS
+LiquidCrystal_I2C lcd(endereco, colunas, linhas);
+#define BUZZER_PIN 3
+
+void setup() 
+{
+  pinMode(BUZZER_PIN, OUTPUT);
+  Serial.begin(9600);
+
+  lcd.init(); // INICIA A COMUNICAÇÃO COM O DISPLAY
+  lcd.backlight(); // iluminação display on
+  lcd.setCursor(0, 0); //loc p digitar
+  lcd.print("concentracao:"); // Mostra título fixo linha 1
+}
+
+void loop() 
+{
+  int sensorValue = analogRead(A0);
+  Serial.println(sensorValue);
+
+  if (sensorValue > 100)
+  {
+    analogWrite(BUZZER_PIN, 50);
+  }
+  else
+  {
+    analogWrite(BUZZER_PIN, 0);    
+  }
+
+  // Atualiza apenas o valor
+  lcd.setCursor(14, 0); // Posição ao final da palavra "concentracao:"
+  lcd.print("    ");    // Limpa o valor anterior
+  lcd.setCursor(14, 0);
+  lcd.print(sensorValue); // Mostra novo valor
+
+  // Exibe "medindo novamente" na linha 2 por 2 segundos
+  lcd.setCursor(0, 1);
+  lcd.print("medindo novamente ");
+  delay(2000);
+
+  // Limpa a segunda linha apenas, mantendo a primeira
+  lcd.setCursor(0, 1);
+  lcd.print("                ");
+}
